@@ -98,4 +98,8 @@ Test(put these code on main.c):
   //    return a.exec();
   }
   
-  I have compile and test it with qt(mingw8.1.0) on windows10
+Test Result( qt(mingw8.1.0) on windows10（cpu:4900h,debug model）):
+create and set complex double data[{181,23,301}]x10: 3379.98 (ms)
+read complex double data[{181,23,301}]x10: 3129.36 (ms)
+save complex double data[{181,23,301}]x10: 12031.8 (ms)
+load complex double data[{181,23,301}]x10: 1531.44 (ms)
