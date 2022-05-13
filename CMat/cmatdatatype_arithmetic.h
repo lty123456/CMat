@@ -17,7 +17,7 @@ public:
     constexpr static bool _isComplex = isComplex;
 
     CMatDataType_Arithmetic();
-    CMatDataType_Arithmetic(CMatDataBase *matData,const size_t index);
+    CMatDataType_Arithmetic(CMatDataBase *matData,const int64_t index);
     CMatDataType_Arithmetic(CMatDataBase *matData,const std::vector<mwSize> &indexes);
 
     virtual ~CMatDataType_Arithmetic();
@@ -41,7 +41,7 @@ protected:
 
 protected:
     CMatDataBase                        *matData;    //the matData is parent's mat data
-    size_t                              index;
+    int64_t                             index;
     std::vector<mwSize>                 indexes;
 
     template<mxClassID,bool,typename,template <bool> class>
@@ -55,7 +55,7 @@ CMatDataType_Arithmetic<classID,T,isComplex>::CMatDataType_Arithmetic() : matDat
 }
 
 template<mxClassID classID, typename T, bool isComplex>
-CMatDataType_Arithmetic<classID,T,isComplex>::CMatDataType_Arithmetic(CMatDataBase *matData,const size_t index) : matData(matData),index(index)
+CMatDataType_Arithmetic<classID,T,isComplex>::CMatDataType_Arithmetic(CMatDataBase *matData, const int64_t index) : matData(matData),index(index)
 {
     if(!dynamic_cast<CMatData<classID,isComplex>*>(matData))
     {
@@ -93,7 +93,7 @@ bool CMatDataType_Arithmetic<classID,T,isComplex>::IsComplex()
 template<mxClassID classID, typename T, bool isComplex>
 T& CMatDataType_Arithmetic<classID,T,isComplex>::Real()
 {
-    if(size_t(-1) == index)
+    if(-1 == index)
         return Cast()->Real(indexes);
     else
         return Cast()->Real(index);
@@ -105,7 +105,7 @@ CMatDataType_Arithmetic<classID,T,isComplex>::Imaginary()
 {
     if constexpr(isComplex)
     {
-        if(size_t(-1) == index)
+        if(-1 == index)
             return Cast()->Imaginary(indexes);
         else
             return Cast()->Imaginary(index);

@@ -9,7 +9,8 @@ public:
     class CellData_Proxy
     {
     public:
-        CellData_Proxy(const CMatDataType_Cell *parent,const mwSize index) : parent(parent), index(index){}
+        CellData_Proxy(const CMatDataType_Cell *parent,const int64_t index) : parent(parent), index(index){}
+        CellData_Proxy(const CMatDataType_Cell *parent,const std::vector<mwSize> indexes) : parent(parent), index(-1),indexes(indexes){}
 
         template<typename T>
         operator T()
@@ -17,13 +18,17 @@ public:
             static_assert (std::is_base_of<CMatDataType,T>::value,"Assignment failed!");
 
             T data;
-            (*(parent->matDataPtr))->Get(index,data);
+            if(-1 == index)
+                (*(parent->matDataPtr))->Get(indexes,data);
+            else
+                (*(parent->matDataPtr))->Get(index,data);
             return data;
         }
 
     protected:
         const CMatDataType_Cell *parent;
-        const mwSize index;
+        const int64_t index;
+        const std::vector<mwSize> indexes;
     };
 
     CMatDataType_Cell(const CMatDataType_Cell &other);
@@ -101,6 +106,8 @@ public:
     typename std::enable_if<classID == mxUINT64_CLASS,CMatDataType_UInt64<isComplex> >::type At(const std::vector<mwSize> &indexes,bool resetType = true,bool expandSize = true);
 
     CMatDataType_Cell& operator=(const CMatDataType_Cell &other);
+
+    CellData_Proxy At(const std::vector<mwSize> &indexes);
 
     CellData_Proxy operator[](mwSize index);
 

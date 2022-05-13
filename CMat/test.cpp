@@ -12,7 +12,7 @@
 
 Test::Test()
 {
-    LARGE_INTEGER f,c1,c2,c3,c4;
+    LARGE_INTEGER f,c1,c2,c3,c4,c5;
     QueryPerformanceFrequency(&f);
     double freq = f.QuadPart / 1000.0;
 
@@ -57,7 +57,8 @@ Test::Test()
 
     QueryPerformanceCounter(&c1);
     vvv.Resize({10,1});
-    for(mwSize i = 0;i < 10;++i)
+//    for(mwSize i = 0;i < 10;++i)
+    for(mwSize i = 0;i < vvv.Dims()[0];++i)
     {
         CMatDataType_Cell cell = vvv.At({i,0});
         cell.Retype(mxDOUBLE_CLASS,true,{181,23,301});
@@ -151,18 +152,48 @@ Test::Test()
     matFile.Close();
     QueryPerformanceCounter(&c4);
 
-    std::cout
-            << "create and set complex double data[{181,23,301}]x10:" << (c2.QuadPart - c1.QuadPart) / freq << std::endl
-            << "read complex double data[{181,23,301}]x10:" << (c3.QuadPart - c2.QuadPart) / freq << std::endl
-            << "save complex double data[{181,23,301}]x10:" << (c4.QuadPart - c3.QuadPart) / freq << std::endl;
+
 
     CMatFile matFile1("write.mat","r");
 
     while(CMatDataBase* vvvv = matFile1.ReadNext())
     {
+        mxClassID classID = vvvv->Type();
+        const std::vector<mwSize> &dims = vvvv->Dims();
+
+        switch(classID)
+        {
+        case mxCELL_CLASS:
+        {
+            CMatData<mxCELL_CLASS,false> &p = dynamic_cast<CMatData<mxCELL_CLASS,false> &>(*vvvv);
+            for(mwSize i = 0;i < p.Size();++i)
+            {
+                assert(p[i].Type() == mxDOUBLE_CLASS && p[i].IsComplex());
+
+                CMatDataType_Double<true> doubleData = p[i].At({0,0,0});        //read first
+
+                double real = doubleData.Real();
+                double imag = doubleData.Imaginary();
+
+                doubleData = p[i].At({180,22,300});                                 //read last when dims is {181,23,301} and last index is {180,22,300}
+                double realLast = doubleData.Real();
+                double imagLast = doubleData.Imaginary();
+            }
+        }break;
+            //case mxDOUBLE_CLASS ...{}break;
+        default:
+            break;
+        }
         delete vvvv;
     }
 
+    QueryPerformanceCounter(&c5);
+
+    std::cout
+            << "create and set complex double data[{181,23,301}]x10: " << (c2.QuadPart - c1.QuadPart) / freq << " (ms)" << std::endl
+            << "read complex double data[{181,23,301}]x10: " << (c3.QuadPart - c2.QuadPart) / freq <<  " (ms)" << std::endl
+            << "save complex double data[{181,23,301}]x10: " << (c4.QuadPart - c3.QuadPart) / freq <<  " (ms)" << std::endl
+            << "load complex double data[{181,23,301}]x10: " << (c5.QuadPart - c4.QuadPart) / freq <<  " (ms)" << std::endl;
 
     CMatVariable<mxSINGLE_CLASS,true> vvvvvv("v",{1,1});
 

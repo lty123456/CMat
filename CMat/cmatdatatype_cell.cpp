@@ -24,11 +24,17 @@ CMatDataType_Cell::~CMatDataType_Cell()
 
 mxClassID CMatDataType_Cell::Type()
 {
-    return mxCELL_CLASS;
+    if(*matDataPtr)
+        return (*matDataPtr)->Type();
+
+    return mxUNKNOWN_CLASS;
 }
 
 bool CMatDataType_Cell::IsComplex()
 {
+    if(*matDataPtr)
+        return (*matDataPtr)->IsComplex();
+
     return false;
 }
 
@@ -106,6 +112,11 @@ CMatDataType_Cell& CMatDataType_Cell::operator=(const CMatDataType_Cell &other)
 {
     matDataPtr = other.matDataPtr;
     return *this;
+}
+
+CMatDataType_Cell::CellData_Proxy CMatDataType_Cell::At(const std::vector<mwSize> &indexes)
+{
+    return CellData_Proxy(this,indexes);
 }
 
 CMatDataType_Cell::CellData_Proxy CMatDataType_Cell::operator[](mwSize index)
