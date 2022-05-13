@@ -10,6 +10,7 @@ Depency：
 
 Code Sample:
 //Step1: Create A {181,23,301} Complex Double matrix * 10 into a cell named "vvv":
+
   #include "cmat/cmatvariable.h" //or
   #include "cmat/cmatfile.h"
   
@@ -51,13 +52,12 @@ Code Sample:
           {
               assert(p[i].Type() == mxDOUBLE_CLASS && p[i].IsComplex());
 
-              CMatDataType_Double<true> doubleData;
-              p[i].At({0,0,0},doubleData);                                                    //read first
+              CMatDataType_Double<true> doubleData = p[i].At({0,0,0});                        //read first complex double,index start from 0
 
               double real = doubleData.Real();
               double imag = doubleData.Imaginary();
 
-              p[i].At({180,22,300},doubleData);                                               //read last when dims is {181,23,301} and last index is {180,22,300}
+              doubleData = p[i].At({180,22,300});                                             //read last when dims is {181,23,301} and last index is {180,22,300}
               double realLast = doubleData.Real();
               double imagLast = doubleData.Imaginary();
           }
@@ -66,6 +66,36 @@ Code Sample:
       default:
           break;
       }
-      delete vvvv;                                                                            //delete the variable pointer
+      delete vvvv;                                                                        //delete the variable pointer
   }
 
+Test(put these code on main.c):  
+  #include <iostream>
+  #include "mat.h"
+
+
+  //#include "C:\\Program Files (x86)\\Visual Leak Detector\\include\\vld.h"
+
+  #include "CMat/test.h"
+  #include "CMat/cmatdata.h"
+  #include "CMat/cmatexception.h"
+  int main(int argc, char *argv[])
+  {
+  //    QApplication a(argc, argv);
+      try {
+          Test *test = new Test();
+          delete test;
+      }  catch (CMatException_OpenMatFileFailed &e) {
+          //
+          std::cout << "exception:" << e.what() << std::endl;
+      }catch(CMatException &e){
+          std::cout << "exception:" << e.what() << std::endl;
+      }
+
+
+
+
+  //    return a.exec();
+  }
+  
+  I have compile and test it with qt(mingw8.1.0) on windows10
